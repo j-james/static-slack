@@ -1,16 +1,14 @@
 # find-and-replace.nim: Parses a set of HTML files for various values
-# @param: A standard, parseable HTML file
-# @param: Path to users.json
+# @param: Path to a standard, parseable HTML file
 # @param: Path to channels.json
-# @param: (optional) global workspace title
+# @param: Path to users.json
+# @param: Global workspace title
 # @return: Parsed HTML file
 # This program is also responsible for filling up the descriptions
 
-import os
-import re
-import json
+import os, re, json
 
-assert paramCount() == 2, "Invalid parameters"
+assert paramCount() == 4, "Invalid parameters"
 assert existsFile(paramStr(1)), "Invalid file"
 var html: string = readFile(paramStr(1))
 
@@ -24,11 +22,9 @@ html = html.replace(re"\* ", "</strong> ")
 html = html.replace(re" _", " <i>")
 html = html.replace(re"_ ", "</i> ")
 
-
-
 # Channel replacement comes first as some users are inserted
-assert existsFile(paramStr(3))
-let channels = parseJSON(readFile(paramStr(3)))
+assert existsFile(paramStr(2))
+let channels = parseJSON(readFile(paramStr(2)))
 assert channels.kind == JArray
 for channel in channels:
     let
@@ -42,14 +38,21 @@ for channel in channels:
         purpose: string = channel["purpose"]["value"].getStr()
 
 
-assert existsFile(paramStr(2))
-let users = parseJSON(readFile(paramStr(2)))
+assert existsFile(paramStr(3))
+let users = parseJSON(readFile(paramStr(3)))
 assert users.kind == JArray
 for user in users:
     let id: string = user["id"].getStr()
     let name: string = user["profile"]["display_name"].getStr() # youtu.be/InZrivHcHDc?t=10
     html = html.replace(re "@" & id, "@" & name)
     html = html.replace(re id, "@" & name)
+
+# Set the HTML title attribute
+let channel: string = splitFile(paramStr(1)).name
+let title: string = paramStr(4)
+html = html.replace(re"<title></title>", "<title>" & channel & " - " & title & "</title>")
+
+# style.css?
 
 echo html
 
