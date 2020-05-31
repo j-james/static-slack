@@ -3,31 +3,49 @@
 # @param: Empty or nonexistent output folder
 # @param: (optional) Name of output website
 
-import os
-import htmlgen
+import os, htmlgen
+import gen, far, assets
 
+# Make sure we're not missing parameters
 assert paramCount() >= 2, "Missing parameters"
 let input = paramStr(1)
 let output = paramStr(2)
 
+# param(1): Check input directory is a Slack export
+assert existsDir(input), "Input is not a directory!"
+assert existsFile(joinPath(input, "users.json")), "Users.json does not exist! Are you sure this is a Slack export?"
+assert existsFile(joinPath(input, "channels.json")), "Channels.json does not exist! Are you sure this is a Slack export?"
+
+# param(2): Check output folder is non-empty
+if existsFile(output):
+    quit("Output path is a file!")
+if existsDir(output):   # HACK: disgusting and probably won't even work
+    for file in walkDir(output):
+        quit("Output folder exists and is non-empty!")
+createDir(output)
+
+# param(3): Set title
 if paramCount() >= 3:
     let title = paramStr(3)
 else:
     let title = "Static Slack"
 
+var html: string
+for channel in walkDir(input):
+    html = gen(channel)
+    html = far(html, joinPath(input, "channels.json"), joinPath(input, "users.json"), title)
+    writeFile(joinPath(output, channel, ".html"), html) # !!!: Check this doesn't produce exported/exported/channel.html
+
+var html: string
+for file in walkDir(output):
+    html = readFile(file)
+    html = assets(html, joinPath(output, "assets")) # !!!: Check for similar wonkiness
+    # html = attachments(html, joinPath(output, "assets/attachments"))
+
+copyFile("style.css", "assets/css/style.css")
+
+echo "Generation complete!"
+echo "Your static Slack instance is available in " & output
+
 # let file = readFile(input)
 # echo file
-
-if existsFile(output):
-    quit("Error: output path is a file!")
-if existsDir(output):   # HACK: disgusting and probably won't even work
-    for file in walkDir(output):
-        quit("Error: output folder exists and is non-empty!")
-createDir(output)
-
-# if output exists and is not empty
-# 	fail
-# else
-# createDir(output)
-# write files to output
-# copy over css
