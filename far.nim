@@ -1,21 +1,56 @@
 # find-and-replace.nim: Parses a set of HTML files for various values
 # @param: A standard, parseable HTML file
+# @param: Path to users.json
+# @param: Path to channels.json
+# @param: (optional) global workspace title
 # @return: Parsed HTML file
 # This program is also responsible for filling up the descriptions
 
-import htmlparser
+import os
+import re
+import json
 
-for each folder in exported
-	for each file in folder
-		formatting()
+assert paramCount() == 2, "Invalid parameters"
+assert existsFile(paramStr(1)), "Invalid file"
+var html: string = readFile(paramStr(1))
+
+# Note: this simple regex-replace approach has a _high_ possibility of missing tags
+
+# Bold text
+html = html.replace(re" \*", " <strong>")
+html = html.replace(re"\* ", "</strong> ")
+
+# Italics
+html = html.replace(re" _", " <i>")
+html = html.replace(re"_ ", "</i> ")
 
 
-# Username replacement follows formatting because most are named like chris_mentzer
-for each folder in exported
-	for each file in folder
-		usernames()
 
-func formatting()
+# Channel replacement comes first as some users are inserted
+assert existsFile(paramStr(3))
+let channels = parseJSON(readFile(paramStr(3)))
+assert channels.kind == JArray
+for channel in channels:
+    let
+        id: string = channel["id"].getStr()
+        name: string = channel["id"].getStr()
+        created: int = channel["name"].getInt()
+        creator: string = channel["creator"].getStr()
+        # members = @channel["members"]
+        # pins: array[float] = channel["pins"]
+        topic: string = channel["topic"]["value"].getStr()
+        purpose: string = channel["purpose"]["value"].getStr()
 
 
-func usernames()
+assert existsFile(paramStr(2))
+let users = parseJSON(readFile(paramStr(2)))
+assert users.kind == JArray
+for user in users:
+    let id: string = user["id"].getStr()
+    let name: string = user["profile"]["display_name"].getStr() # youtu.be/InZrivHcHDc?t=10
+    html = html.replace(re "@" & id, "@" & name)
+    html = html.replace(re id, "@" & name)
+
+echo html
+
+# let list = li(class="example", a(href="channel-type-channels/channel-name", "channel-name"))
