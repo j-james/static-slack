@@ -4,53 +4,26 @@
 # @param: (optional) Name of output website
 
 import os
-import json
 import htmlgen
 
-let input = parseJSON(readFile(paramStr(1)))
+assert paramCount() >= 2, "Missing parameters"
+let input = paramStr(1)
+let output = paramStr(2)
 
-assert input.kind == JArray
-for i in input:
-    echo input.kind
-
-# let output = paramStr(2)
-# assert paramCount() >= 2, "Missing parameters"
+if paramCount() >= 3:
+    let title = paramStr(3)
+else:
+    let title = "Static Slack"
 
 # let file = readFile(input)
 # echo file
 
-let username: string = "bob"
-let time: string = "12:30"
-let reactions: string = "yay"
-let content: string = "yadda yadda"
-
-# echo `div`(`div`(img(username)), `div`(strong(username), a(time), br(), p(content), span(reactions)))
-
-
-echo `div`(class="message",
-        `div`(class="image",
-            img(src="assets/" & $username & ".jpg", alt="eat flaming death")),
-        `div`(class="text",
-            strong(class="username", username),
-            a(class="time", time),
-            br(),
-            p(class="content", content),
-            span(reactions)))
-
-let
-    five = 36743
-    four = five + 2336
-    six = five + 32436
-
-echo five
-echo four
-echo six
-
-
-# let
-# let json = parseJson()
-
-# existsOrCreateDir(generated)
+if existsFile(output):
+    quit("Error: output path is a file!")
+if existsDir(output):   # HACK: disgusting and probably won't even work
+    for file in walkDir(output):
+        quit("Error: output folder exists and is non-empty!")
+createDir(output)
 
 # if output exists and is not empty
 # 	fail

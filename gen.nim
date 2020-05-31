@@ -5,6 +5,7 @@
 
 import os
 import json
+import times
 import htmlgen
 
 assert paramCount() == 1, "Invalid arguments"
@@ -12,26 +13,27 @@ let directory: string = paramStr(1)
 assert existsDir(directory), "Invalid directory"
 
 var messages: string
-for i in walkDir(directory):
-    assert existsFile(i.path)
-    let json = parseJSON(readFile(i.path))
-    assert json.kind == JArray
-    for i in json:
-        let node = i
+for file in walkDir(directory):    # nim's for loops are cool
+    assert existsFile(file.path)
+    let json = parseJSON(readFile(file.path))
+    assert json.kind == JArray, "JSON file is not a JArray!"
+    for node in json:   # nim's for loops are Very Cool
         assert node.kind == JObject
         if node["type"].getStr() == "message":
             let
                 user: string = node["user"].getStr()
                 text: string = node["text"].getStr()
-                time: string = node["ts"].getStr()  # needs converting
+                identifier: string = node["ts"].getStr()
+                time: string = fromUnixFloat(node["ts"].getFloat()).format("dddd', 'MMMM' 'd', 'h':'mm' 'tt")  # !!!: WINDOWS and UNIX times are different
             let message: string =
-                `div`(class="message",
+                `div`(class="message", id=identifier,
                 `div`(class="image",
                     img(src="assets/" & user & ".jpg", alt="profile picture: " & user)),
                 `div`(class="text",
-                    strong(class="user", user), a(class="time", id=time, time),
+                    strong(class="user", user), a(class="time", href=identifier, time),
                     br(), p(class="text", text), span("reactions")))
             messages = messages & message
+    messages = messages & span(class="divider", $file)
 
 let content:string = `div`(id="content",
     `div`(id="banner",
@@ -40,11 +42,11 @@ let content:string = `div`(id="content",
     `div`(id="messages", messages))
 
 let head: string = head(
-    title(), meta(charset="utf-8"),      # The workspace title is inserted by main.nim
-    link(rel="icon", type="image/jpg"),  # The icon href is inserted by far.nim
-    link(rel="stylesheet"))              # The stylesheet href is inserted by far.nim
+    title(), meta(charset="utf-8"),     # The workspace title is inserted by far.nim
+    link(rel="icon", href="https://a.slack-edge.com/80588/marketing/img/meta/favicon-32.png"),
+    link(rel="stylesheet"))             # The stylesheet href is inserted by far.nim
 
-let body: string = body(    # Channel lists are inserted by far.nim, workspace title by main.nim
+let body: string = body(                # Workspace title and channel lists are inserted by far.nim
     `div`(id="sidebar", h1(id="title"),
     `div`(id="public-channels",  h3("Public Channels"),  ul()),
     `div`(id="private-channels", h3("Private Channels"), ul()),
@@ -52,6 +54,6 @@ let body: string = body(    # Channel lists are inserted by far.nim, workspace t
     `div`(id="personal-dms",     h3("Direct Messages"),  ul())),
     content)
 
-let html = head & body  # potential issue: `let` may not 'let' `html` change when `head` and `body` do
+let html = html(head, body)  # potential issue: `let` may not 'let' `html` change when `head` and `body` do
 
 echo html   # this shouldn't be done actually but I don't know how to return from a program
