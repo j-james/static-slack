@@ -3,10 +3,7 @@
 # @param: Asset output location
 # @return: Newly-generated HTML file with relative links
 
-import os
-import re
-import htmlparser, htmlgen
-import uri
+import os, re, htmlparser, htmlgen, uri
 
 assert paramCount() == 2, "Invalid arguments"
 assert existsFile(paramStr(1))

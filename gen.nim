@@ -3,10 +3,7 @@
 # @return: Generated HTML file
 # Do note that replacing user / channel mentions is handled exclusively in far.nim
 
-import os
-import json
-import times
-import htmlgen
+import os, json, times, htmlgen
 
 assert paramCount() == 1, "Invalid arguments"
 let directory: string = paramStr(1)
