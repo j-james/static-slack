@@ -6,10 +6,10 @@ A (not-yet) full-fledged Slack export viewer. 90% of the way to 90% there.
 ## Roadmap
 
 - [ ] Generate HTML
-  - [ ] main.nim
+  - [x] main.nim (ish)
   - [x] gen.nim
 - [ ] Replace user / channel IDs with names
-  - [ ] far.nim
+  - [x] far.nim (again, ish)
 - [ ] Host assets locally
   - [ ] assets.nim
 - [ ] Make the generated HTML look like an actual Slack workspace

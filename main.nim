@@ -6,10 +6,10 @@
 import os, htmlgen
 import gen, far, assets
 
-# Make sure we're not missing parameters
+# Make sure we're not missing parameters (param(3) is optional)
 assert paramCount() >= 2, "Missing parameters"
-let input = paramStr(1)
-let output = paramStr(2)
+let input: string = paramStr(1)
+let output: string = paramStr(2)
 
 # param(1): Check input directory is a Slack export
 assert existsDir(input), "Input is not a directory!"
@@ -19,16 +19,16 @@ assert existsFile(joinPath(input, "channels.json")), "Channels.json does not exi
 # param(2): Check output folder is non-empty
 if existsFile(output):
     quit("Output path is a file!")
-if existsDir(output):   # HACK: disgusting and probably won't even work
+if existsDir(output):   # HACK: surprisingly the only real way to do this
     for file in walkDir(output):
         quit("Output folder exists and is non-empty!")
 createDir(output)
 
 # param(3): Set title
 if paramCount() >= 3:
-    let title = paramStr(3)
+    let title: string = paramStr(3)
 else:
-    let title = "Static Slack"
+    let title: string = "Static Slack"
 
 var html: string
 for channel in walkDir(input):
