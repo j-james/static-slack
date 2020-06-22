@@ -7,8 +7,6 @@
 
 import os, re, json
 
-assert paramCount() == 3, "Invalid parameters"
-
 proc far*(html, input, title: string): string =
     var html: string = html # XXX: probably bad
 
@@ -55,5 +53,3 @@ proc far*(html, input, title: string): string =
     # style.css?
 
     return html
-
-echo far(paramStr(1), paramStr(2), paramStr(3))

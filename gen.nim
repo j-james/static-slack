@@ -5,18 +5,16 @@
 
 import os, json, times, htmlgen
 
-assert paramCount() == 1, "Invalid arguments"
-
 proc gen*(dir: string): string =
     assert existsDir(dir), "Invalid directory"
     var messages: string
     for file in walkDir(dir):    # nim's for loops are cool
-        assert existsFile(file.path)
+        assert existsFile(file.path), file.path
         let json = parseJSON(readFile(file.path))
         assert json.kind == JArray, "JSON file is not a JArray!"
         for node in json:   # nim's for loops are Very Cool
-            assert node.kind == JObject
-            if node["type"].getStr() == "message":
+            assert node.kind == JObject, "JSON node is not a JObject!"
+            if node["type"].getStr() == "message" and hasKey(node, "user"):
                 let
                     user: string = node["user"].getStr()
                     text: string = node["text"].getStr()
@@ -52,5 +50,3 @@ proc gen*(dir: string): string =
         content)
 
     return html(head, body)
-
-echo gen(paramStr(1))
