@@ -5,15 +5,15 @@ A (not-yet) full-fledged Slack export viewer. 90% of the way to 90% there.
 
 ## Roadmap
 
-- [ ] Generate HTML
-  - [x] main.nim (ish)
+- [x] Generate HTML
+  - [x] main.nim
   - [x] gen.nim
-- [ ] Replace user / channel IDs with names
-  - [x] far.nim (again, ish)
-- [ ] Host assets locally
-  - [ ] assets.nim
+- [x] Replace user / channel IDs with names
+  - [x] far.nim
 - [ ] Make the generated HTML look like an actual Slack workspace
   - [ ] Offer both Classic Slack and the redesign
+- [ ] Host assets locally
+  - [ ] assets.nim
 - [ ] Support attachments
   - [ ] attachments.nim?
 - [ ] Compile generator to C and as a binary for v1.0
@@ -28,6 +28,6 @@ A (not-yet) full-fledged Slack export viewer. 90% of the way to 90% there.
 
 `nim compile --run main.nim slack_export_folder output_location workspace_name`
 
-### Run the binary (available under Releases)
+### Run the binary (will be available under Releases)
 
 `static-slack slack_export_folder output_location`

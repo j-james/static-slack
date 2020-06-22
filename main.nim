@@ -34,7 +34,7 @@ if paramCount() >= 3:
 var html: string
 var path: string
 for channel in walkDir(input):
-    path = joinPath(output, channel.path, ".html")
+    path = joinPath(output, tailDir(channel.path)) & ".html"
     if channel.kind == pcDir or channel.kind == pcLinkToDir: # ignore the three loose JSON files
         html = gen(channel.path) # XXX: verify that multiple writeFiles to the same location works
         html = far(html, input, tailDir(output))
@@ -42,6 +42,7 @@ for channel in walkDir(input):
         # html = attachments(html, output) # !!!: Check for similar wonkiness
         writeFile(path, html) # !!!: Check this doesn't produce exported/exported/channel.html
 
+createDir(joinPath(output, "assets/css"))
 copyFile("style.css", joinPath(output, "assets/css/style.css"))
 
 echo "Generation complete!"

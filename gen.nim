@@ -19,6 +19,7 @@ proc gen*(dir: string): string =
                     user: string = node["user"].getStr()
                     text: string = node["text"].getStr()
                     identifier: string = node["ts"].getStr()
+                    # FIXME: these times are wrong
                     time: string = fromUnixFloat(node["ts"].getFloat()).format("dddd', 'MMMM' 'd', 'h':'mm' 'tt")  # !!!: WINDOWS and UNIX times are different
                 let message: string =
                     `div`(class="message", id=identifier,
