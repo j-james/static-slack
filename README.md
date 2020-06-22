@@ -26,7 +26,7 @@ A (not-yet) full-fledged Slack export viewer. 90% of the way to 90% there.
 
 `cd static-slack`
 
-`nim compile --run main.nim slack_export_folder output_location`
+`nim compile --run main.nim slack_export_folder output_location workspace_name`
 
 ### Run the binary (available under Releases)
 

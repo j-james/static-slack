@@ -19,6 +19,7 @@ echo example.anchor
 
 var html = loadHTML(paramStr(1))
 
+# Point to local stylesheet
 html = html.replace(re "<link rel=\"stylesheet\" />", "<link rel=\"stylesheet\" href=\"" & directory & "style.css\" />")
 
 
