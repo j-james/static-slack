@@ -1,18 +1,16 @@
 # find-and-replace.nim: Parses a set of HTML files for various values
-# @param: Path to a standard, parseable HTML file
-# @param: Path to channels.json
-# @param: Path to users.json
+# @param: A standard, parseable HTML file
+# @param: Path to unzipped Slack export folder
 # @param: Global workspace title
 # @return: Parsed HTML file
-# This program is also responsible for filling up the descriptions
+# This program is also responsible for filling up the descriptions.
 
 import os, re, json
 
-assert paramCount() == 4, "Invalid parameters"
+assert paramCount() == 3, "Invalid parameters"
 
-proc far(htmlPath, channelsPath, usersPath, title: string): string =
-    assert existsFile(htmlPath), "Invalid file"
-    var html: string = readFile(htmlPath)
+proc far*(html, input, title: string): string =
+    var html: string = html # XXX: probably bad
 
     # Note: this simple regex-replace approach has a _high_ possibility of missing tags
     # But, at least it won't mess up names
@@ -26,8 +24,8 @@ proc far(htmlPath, channelsPath, usersPath, title: string): string =
     html = html.replace(re"_ ", "</i> ")
 
     # Channel replacement comes first as some users are inserted
-    assert existsFile(channelsPath)
-    let channels = parseJSON(readFile(channelsPath))
+    assert existsFile(joinPath(input, "channels.json"))
+    let channels = parseJSON(readFile(joinPath(input, "channels.json")))
     assert channels.kind == JArray
     for channel in channels:
         let
@@ -41,8 +39,8 @@ proc far(htmlPath, channelsPath, usersPath, title: string): string =
             purpose: string = channel["purpose"]["value"].getStr()
 
     # User replacement
-    assert existsFile(usersPath)
-    let users = parseJSON(readFile(usersPath))
+    assert existsFile(joinPath(input, "users.json"))
+    let users = parseJSON(readFile(joinPath(input, "users.json")))
     assert users.kind == JArray
     for user in users:
         let id: string = user["id"].getStr()
@@ -51,12 +49,11 @@ proc far(htmlPath, channelsPath, usersPath, title: string): string =
         html = html.replace(re id, "@" & name)
 
     # Set the HTML title attribute
-    let channel: string = splitFile(htmlPath).name
-    html = html.replace(re"<title></title>", "<title>" & channel & " - " & title & "</title>")
+    html = html.replace(re"</title>", " - " & title & "</title>")
 
     # let list = li(class="example", a(href="channel-type-channels/channel-name", "channel-name"))
     # style.css?
 
     return html
 
-echo far(paramStr(1), paramStr(2), paramStr(3), paramStr(4))
+echo far(paramStr(1), paramStr(2), paramStr(3))

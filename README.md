@@ -31,5 +31,3 @@ A (not-yet) full-fledged Slack export viewer. 90% of the way to 90% there.
 ### Run the binary (available under Releases)
 
 `static-slack slack_export_folder output_location`
-
-haha district bad brrr

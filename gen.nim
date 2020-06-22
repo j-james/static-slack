@@ -7,7 +7,7 @@ import os, json, times, htmlgen
 
 assert paramCount() == 1, "Invalid arguments"
 
-proc gen(dir: string): string =
+proc gen*(dir: string): string =
     assert existsDir(dir), "Invalid directory"
     var messages: string
     for file in walkDir(dir):    # nim's for loops are cool
@@ -30,16 +30,16 @@ proc gen(dir: string): string =
                         strong(class="user", user), a(class="time", href=identifier, time),
                         br(), p(class="text", text), span("reactions")))
                 messages = messages & message
-        messages = messages & span(class="divider", $file)
+        messages = messages & span(class="divider", $file) # FIXME: $file???
 
     let content:string = `div`(id="content",
         `div`(id="banner",
         `div`(id="channel", strong(dir), br(), p()),   # Channel descriptions are inserted by far.nim
-        `div`(id="search")),                                  # TODO: this needs actual functionality
+        `div`(id="search")),                           # TODO: this needs actual functionality
         `div`(id="messages", messages))
 
     let head: string = head(
-        title(), meta(charset="utf-8"),     # The workspace title is inserted by far.nim
+        title(extractFilename(dir)), meta(charset="utf-8"),     # The workspace title is inserted by far.nim
         link(rel="icon", href="https://a.slack-edge.com/80588/marketing/img/meta/favicon-32.png"),
         link(rel="stylesheet"))             # The stylesheet href is inserted by far.nim
 
