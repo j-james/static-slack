@@ -25,22 +25,17 @@ elif existsDir(output):   # HACK: surprisingly the only real way to do this
 else:
     createDir(output)
 
-# param(3): Set title
-var title: string = "Static Slack"
-if paramCount() >= 3:
-    title = paramStr(3)
-
 # Create an HTML file for each channel JSON folder
 var html: string
 var path: string
 for channel in walkDir(input):
     path = joinPath(output, tailDir(channel.path)) & ".html"
     if channel.kind == pcDir or channel.kind == pcLinkToDir: # ignore the three loose JSON files
-        html = gen(channel.path) # XXX: verify that multiple writeFiles to the same location works
+        html = gen(channel.path)
         html = far(html, input, tailDir(output))
-        # html = assets(html, output) # NOTE: this program will not work if you have a channel named "assets"
-        # html = attachments(html, output) # !!!: Check for similar wonkiness
-        writeFile(path, html) # !!!: Check this doesn't produce exported/exported/channel.html
+        # html = assets(html, input, output)
+        # html = attachments(html, output)
+        writeFile(path, html)
 
 createDir(joinPath(output, "assets/css"))
 copyFile("style.css", joinPath(output, "assets/css/style.css"))
