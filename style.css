@@ -1,0 +1,52 @@
+body {
+	font-family: Slack-Lato, Lato, sans-serif;
+	display: flex;
+	flex-direction: row;
+	margin: 0;
+}
+
+#sidebar {
+	background-color: #4D394B;
+	color: grey;
+	padding: 0.5em;
+	max-width: 20vw;
+}
+
+#sidebar strong {
+	font-weight: bold;
+}
+
+#sidebar h1 {
+}
+
+#sidebar h3 {
+	font-size: 0.8em;
+	text-transform: uppercase;
+}
+
+#sidebar li {
+	text-transform: lowercase;
+}
+
+#sidebar li:before {
+	content: "# ";
+}
+
+#content h1:before {
+	content: "#"
+}
+
+.message {
+	display: flex;
+	flex-direction: row;
+}
+
+.time {
+	color: grey;
+	text-decoration: none;
+	padding: 6px;
+}
+
+.time:hover {
+	text-decoration: underline;
+}
