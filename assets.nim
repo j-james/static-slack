@@ -1,34 +1,33 @@
-# assets.nim: Handles converting _all_ href-fetched assets
-# @param: A parseable HTML file
+# assets.nim: Handles converting _all_ src-fetched assets
+# @param: A standard (hopefully), parseable HTML file
+# @param: Path to unzipped Slack export folder
 # @param: Asset output location
 # @return: Newly-generated HTML file with relative links
 
-import os, re, htmlparser, htmlgen, uri
+import os, json
+import htmlparser, xmltree, strtabs
+import httpclient, uri
 
-assert paramCount() == 2, "Invalid arguments"
-assert existsFile(paramStr(1))
+proc assets*(html, input, output: string): string =
+    var html = parseHTML(html)
+    let users = parseJSON(readFile(joinPath(input, "users.json")))
+    let client = newHTTPClient()
 
-let example = parseUri("https://j-james.me/boogabooga/image.png")
+    createDir(joinPath(output, "img"))
+    # Image embeds
+    for img in html.findAll("img"):
+        assert img.attrs.hasKey "src"
 
-echo example.username
-echo example.password
-echo example.hostname
-echo example.port
-echo example.path
-echo example.anchor
+        # User pictures
+        if img.attrs["class"] == "profile":
+            for node in users:
+                if getStr(node["id"]) == img.attrs["src"]:
+                    img.attrs["src"] = getStr(node["profile"]["image_48"])
 
-var html = loadHTML(paramStr(1))
+        var url: string = img.attrs["src"]
+        var name: string = extractFilename(parseUri(url).path)
+        if not fileExists(joinPath(output, "img", name)) and not (name == "USLACKBOT"):
+            downloadFile(client, url, joinPath(output, "img", name))
+        img.attrs["src"] = joinPath("img", name)
 
-# Point to local stylesheet
-html = html.replace(re "<link rel=\"stylesheet\" />", "<link rel=\"stylesheet\" href=\"" & directory & "style.css\" />")
-
-
-for a in html.findAll("a"):
-    if a.attrs.hasKey "href":
-        # check file type
-        # endswith from strutils
-        # if image:
-            # if filename exists in assets
-            # link to it
-            # else download
-        # else, break
+    return $html

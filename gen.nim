@@ -25,7 +25,7 @@ proc gen*(dir: string): string =
                 let message: string =
                     `div`(class="message", id=identifier,
                     `div`(class="image",
-                        img(src="{{ user " & user & " }}", alt="profile picture: " & user)),
+                        img(src=user, class="profile", alt=user)),
                     `div`(class="text",
                         strong(class="user", user), a(class="time", href="#" & identifier, time),
                         br(), p(class="text", text), span("reactions")))
@@ -40,7 +40,7 @@ proc gen*(dir: string): string =
 
     let head: string = head(
         title(extractFilename(dir)), meta(charset="utf-8"),     # The workspace title is inserted by far.nim
-        link(rel="icon", href="{{ favicon }}"),
+        link(rel="icon", href="assets/img/favicon.ico"),
         link(rel="stylesheet", href="assets/css/style.css"))
 
     let body: string = body(         # Channel lists are inserted by far.nim

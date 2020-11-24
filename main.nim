@@ -3,7 +3,7 @@
 # @param: Empty or nonexistent output folder / name of output website
 
 import os, htmlgen
-import gen, far
+import gen, far, assets
 
 # Make sure we're not missing parameters
 assert paramCount() == 2, "Invalid parameters"
@@ -32,8 +32,8 @@ for channel in walkDir(input):
     path = joinPath(output, tailDir(channel.path)) & ".html"
     if channel.kind == pcDir or channel.kind == pcLinkToDir: # ignore the three loose JSON files
         html = gen(channel.path)
+        html = assets(html, input, output)
         html = far(html, input, tailDir(output))
-        # html = assets(html, input, output)
         # html = attachments(html, output)
         writeFile(path, html)
 
