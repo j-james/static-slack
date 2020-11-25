@@ -22,6 +22,6 @@ proc assets*(html, output: string): string =
         img.attrs["src"] = joinPath("assets/img", name)
 
     # Favicon
-    downloadFile(client, "https://a.slack-edge.com/80588/marketing/img/meta/favicon-32.png", joinPath(output, "assets/img", "favicon.png"))
+    downloadFile(client, "https://a.slack-edge.com/80588/marketing/img/meta/favicon-32.png", joinPath(output, "assets/img/favicon.png"))
 
     return $html
