@@ -48,6 +48,6 @@ proc far*(html, input: string): string =
         let profile: string = getStr(user["profile"]["image_48"])
         html = html.replace(re "img src=\"" & id, "img src=\"" & profile)
         html = html.replace(re "@" & id, "@" & name)
-        html = html.replace(re id, "@" & name)
+        html = html.replace(re id, name)
 
     return html
