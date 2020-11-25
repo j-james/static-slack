@@ -2,7 +2,7 @@
 # @param: Unzipped Slack export folder
 # @param: Empty or nonexistent output folder / name of output website
 
-import os, htmlgen
+import os
 import gen, far, assets
 
 # Make sure we're not missing parameters
@@ -11,15 +11,14 @@ let input: string = paramStr(1)
 let output: string = paramStr(2)
 
 # param(1): Check input directory is a Slack export
-assert existsDir(input), "Input is not a directory!"
-assert existsFile(joinPath(input, "users.json")), "users.json does not exist! Are you sure this is a Slack export?"
-assert existsFile(joinPath(input, "channels.json")), "channels.json does not exist! Are you sure this is a Slack export?"
-# TODO: support for zips
+assert dirExists(input), "Input is not a directory! Zipped exports are not currently supported."    # TODO: support for zips
+assert fileExists(joinPath(input, "users.json")), "users.json does not exist! Are you sure this is a Slack export?"
+assert fileExists(joinPath(input, "channels.json")), "channels.json does not exist! Are you sure this is a Slack export?"
 
 # param(2): Check output folder is empty
-if existsFile(output):
+if fileExists(output):
     quit("Output path is a file!")
-elif existsDir(output):   # HACK: surprisingly the only real way to do this
+elif dirExists(output):   # HACK: surprisingly the only real way to do this
     for file in walkDir(output):
         quit("Output folder exists and is non-empty!")
 else:
@@ -32,8 +31,8 @@ for channel in walkDir(input):
     path = joinPath(output, tailDir(channel.path)) & ".html"
     if channel.kind == pcDir or channel.kind == pcLinkToDir: # ignore the three loose JSON files
         html = gen(channel.path)
-        html = assets(html, input, output)
-        html = far(html, input, tailDir(output))
+        html = far(html, input)
+        html = assets(html, output)
         # html = attachments(html, output)
         writeFile(path, html)
 

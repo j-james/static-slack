@@ -1,7 +1,7 @@
 static-slack
 ============
 
-A (not-yet) full-fledged Slack export viewer. 90% of the way to 90% there.
+A (not-yet) full-fledged Slack export viewer.
 
 ## Roadmap
 
@@ -13,8 +13,8 @@ A (not-yet) full-fledged Slack export viewer. 90% of the way to 90% there.
 	- [x] far.nim
 - [ ] Make the generated HTML look like an actual Slack workspace
 	- [ ] Offer both Classic Slack and the redesign
-- [ ] Host assets locally
-	- [ ] assets.nim
+- [x] Host assets locally
+	- [x] assets.nim
 - [ ] Support attachments
 	- [ ] attachments.nim?
 - [ ] Compile generator to C and as a binary for v1.0
@@ -27,8 +27,8 @@ A (not-yet) full-fledged Slack export viewer. 90% of the way to 90% there.
 
 `cd static-slack`
 
-`nim compile --run main.nim slack_export_folder output_location`
+`nim compile -d:ssl --run main.nim <slack_export_folder> <output_location>`
 
 ### Run the binary (will be available under Releases)
 
-`static-slack slack_export_folder output_location`
+`static-slack <slack_export_folder> <output_location>`

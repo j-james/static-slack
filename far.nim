@@ -7,7 +7,7 @@
 
 import os, re, json
 
-proc far*(html, input, title: string): string =
+proc far*(html, input: string): string =
     var html: string = html # XXX: probably bad
 
     # Note: this simple regex-replace approach has a _high_ possibility of missing tags
@@ -21,35 +21,33 @@ proc far*(html, input, title: string): string =
     html = html.replace(re" _", " <i>")
     html = html.replace(re"_ ", "</i> ")
 
+    #[
     # Channel replacement comes first as some users are inserted
-    assert existsFile(joinPath(input, "channels.json"))
+    assert fileExists(joinPath(input, "channels.json"))
     let channels = parseJSON(readFile(joinPath(input, "channels.json")))
     assert channels.kind == JArray
     for channel in channels:
         let
-            id: string = channel["id"].getStr()
-            name: string = channel["id"].getStr()
-            created: int = channel["name"].getInt()
-            creator: string = channel["creator"].getStr()
+            id: string = getStr(channel["id"])
+            name: string = getStr(channel["id"])
+            created: int = getInt(channel["name"])
+            creator: string = getStr(channel["creator"])
             # members = @channel["members"]
             # pins: array[float] = channel["pins"]
-            topic: string = channel["topic"]["value"].getStr()
-            purpose: string = channel["purpose"]["value"].getStr()
+            topic: string = getStr(channel["topic"]["value"])
+            purpose: string = getStr(channel["purpose"]["value"])
+    ]#
 
     # User replacement
-    assert existsFile(joinPath(input, "users.json"))
+    assert fileExists(joinPath(input, "users.json"))
     let users = parseJSON(readFile(joinPath(input, "users.json")))
     assert users.kind == JArray
     for user in users:
-        let id: string = user["id"].getStr()
-        let name: string = user["profile"]["display_name"].getStr() # youtu.be/InZrivHcHDc?t=10
+        let id: string = getStr(user["id"])
+        let name: string = getStr(user["profile"]["display_name"]) # youtu.be/InZrivHcHDc?t=10
+        let profile: string = getStr(user["profile"]["image_48"])
+        html = html.replace(re "img src=\"" & id, "img src=\"" & profile)
         html = html.replace(re "@" & id, "@" & name)
         html = html.replace(re id, "@" & name)
-
-    # Set the HTML title attribute
-    html = html.replace(re"</title>", " - " & title & "</title>")
-
-    # let list = li(class="example", a(href="channel-type-channels/channel-name", "channel-name"))
-    # style.css?
 
     return html
