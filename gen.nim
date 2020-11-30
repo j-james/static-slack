@@ -3,7 +3,30 @@
 # @return: Generated HTML file
 # Do note that replacing user / channel mentions is handled exclusively in far.nim
 
-import os, json, times, htmlgen
+import os, json, times, htmlgen, regex
+
+# There's some transformations that really should be done within the block itself
+func transform(text: string): string =
+    var text = text
+
+    # Newline characters are safe to regex replace with a self-closing <br />
+    text = replace(text, re("\n"), "<br />")
+
+    # Slack exports enjoy starting links with <http rather than http, complicating parsing
+    text = replace(text, re("<http"), "http")
+
+    # Replace Markdown indentifiers one at a time while ensuring a closing tag
+    while len(findAll(text, re("\\*"))) > 1:
+        text = replace(text, re("\\*"), "<strong>", 1)
+        text = replace(text, re("\\*"), "</strong>", 1)
+    while len(findAll(text, re("_"))) > 1:
+        text = replace(text, re("_"), "<em>", 1)
+        text = replace(text, re("_"), "</em>", 1)
+    while len(findAll(text, re("```"))) > 1:
+        text = replace(text, re("```"), "<code>", 1)
+        text = replace(text, re("```"), "</code>", 1)
+
+    return text
 
 # * denotes an exposed method
 proc gen*(dir: string): string =
@@ -15,12 +38,12 @@ proc gen*(dir: string): string =
         assert json.kind == JArray, "JSON file is not an array!"
         for node in json: # nim's for loops are Very Cool
             assert node.kind == JObject, "JSON node is not an object!"
-            if getStr(node["type"]) == "message" and hasKey(node, "user"):  # XXX: Not quite sure what wouldn't be a message
+            if getStr(node["type"]) == "message" and hasKey(node, "user"): # XXX: Not quite sure what wouldn't be a message
                 let
                     user: string = getStr(node["user"])
                     identifier: string = getStr(node["ts"]) # XXX: Not really an id...
-                    time: string = fromUnixFloat(getFloat(node["ts"])).format("h':'mm' 'tt")    # FIXME: these times are wrong
-                    text: string = getStr(node["text"]) # TODO: modify this to escape / process weird Slack formatting!
+                    time: string = fromUnixFloat(getFloat(node["ts"])).format("h':'mm' 'tt") # FIXME: these times are wrong
+                    text: string = transform(getStr(node["text"]))
                 let message: string =
                     `div`(class="message", id=identifier,
                         `div`(class="image",
@@ -28,24 +51,23 @@ proc gen*(dir: string): string =
                         ), `div`(class="text",
                             strong(class="user", user),
                             a(class="time", href="#" & identifier, time),
-                            br(),
-                            p(class="text", text),
-                            span("reactions")
+                            p(text),
+                            span("reactions") # TODO: this needs actual functionality
                         )
                     )
                 messages &= message # XXX: This is a likely source of message mixups
-        messages = messages & span(class="divider", splitFile(file.path).name)  # TODO: spans are probably not the best way of dividing days
+        messages = messages & span(class="divider", splitFile(file.path).name) # TODO: spans are probably not the best way of dividing days
 
     # Channel descriptions are inserted by far.nim
     let content:string =
-        `div`(id="content",
+        main(
             `div`(id="banner",
                 `div`(id="channel",
                     h1(extractFilename(dir)),
                     br(),
                     p()
                 ),
-                `div`(id="search")  # TODO: this needs actual functionality
+                `div`(id="search") # TODO: this needs actual functionality
             ), `div`(id="messages", messages)
         )
 
@@ -59,7 +81,7 @@ proc gen*(dir: string): string =
     # Channel lists are inserted by far.nim
     let body: string =
         body(
-            `div`(id="sidebar",
+            nav(
                 h1(id="title", extractFilename(dir)),
                 `div`(id="public-channels",  h3("Public Channels"),  ul()),
                 `div`(id="private-channels", h3("Private Channels"), ul()),

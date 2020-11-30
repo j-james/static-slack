@@ -13,13 +13,15 @@ proc far*(html, input: string): string =
     # Note: this simple regex-replace approach has a _high_ possibility of missing tags
     # But, at least it won't mess up names
 
+    #[
     # Bold text
-    html = html.replace(re" \*", " <strong>")
-    html = html.replace(re"\* ", "</strong> ")
+    html = replace(html, " \*", " <strong>")
+    html = replace(html, "\* ", "</strong> ")
 
     # Italics
-    html = html.replace(re" _", " <i>")
-    html = html.replace(re"_ ", "</i> ")
+    html = replace(html, " _", " <i>")
+    html = replace(html, "_ ", "</i> ")
+    ]#
 
     #[
     # Channel replacement comes first as some users are inserted
@@ -46,8 +48,8 @@ proc far*(html, input: string): string =
         let id: string = getStr(user["id"])
         let name: string = getStr(user["profile"]["display_name"]) # youtu.be/InZrivHcHDc?t=10
         let profile: string = getStr(user["profile"]["image_48"])
-        html = html.replace(re "img src=\"" & id, "img src=\"" & profile)
-        html = html.replace(re "@" & id, "@" & name)
-        html = html.replace(re id, name)
+        html = replace(html, re("img src=\"" & id), "img src=\"" & profile)
+        html = replace(html, re("@" & id), "@" & name)
+        html = replace(html, re(id), name)
 
     return html
