@@ -5,40 +5,31 @@
 # @return: Parsed HTML file
 # This program is also responsible for filling up the descriptions.
 
-import os, re, json
+import os, re, json, algorithm
 
-proc far*(html, input: string): string =
-    var html: string = html # XXX: probably bad
+proc far*(html, input, title: string): string =
+    var html: string = html
 
-    # Note: this simple regex-replace approach has a _high_ possibility of missing tags
-    # But, at least it won't mess up names
-
-    #[
-    # Bold text
-    html = replace(html, " \*", " <strong>")
-    html = replace(html, "\* ", "</strong> ")
-
-    # Italics
-    html = replace(html, " _", " <i>")
-    html = replace(html, "_ ", "</i> ")
-    ]#
-
-    #[
-    # Channel replacement comes first as some users are inserted
+    # Channel replacement
     assert fileExists(joinPath(input, "channels.json"))
     let channels = parseJSON(readFile(joinPath(input, "channels.json")))
-    assert channels.kind == JArray
+    assert channels.kind == JArray, "channels.json is not an array!"
+    var list: seq[string]
     for channel in channels:
-        let
-            id: string = getStr(channel["id"])
-            name: string = getStr(channel["id"])
-            created: int = getInt(channel["name"])
-            creator: string = getStr(channel["creator"])
-            # members = @channel["members"]
-            # pins: array[float] = channel["pins"]
-            topic: string = getStr(channel["topic"]["value"])
-            purpose: string = getStr(channel["purpose"]["value"])
-    ]#
+        let name: string = getStr(channel["name"])
+        if name == title:
+            html = replace(html, re("id=\"purpose\">"), "id=\"purpose\">" & getStr(channel["purpose"]["value"]))
+        list.add(name)
+    var nav: string = "<nav><ul>"
+    for name in sorted(list):
+        if name == title:
+            nav &= "<li id=\"current\"><a href=\"" & name & ".html\">" & name & "</a></li>"
+        else:
+            nav &= "<li><a href=\"" & name & ".html\">" & name & "</a></li>"
+    nav &= "</ul></nav>"
+    html = replace(html, re("<nav></nav>"), nav)
+
+    # TODO: Mark pinned messages
 
     # User replacement
     assert fileExists(joinPath(input, "users.json"))
@@ -49,7 +40,7 @@ proc far*(html, input: string): string =
         let name: string = getStr(user["profile"]["real_name"]) # youtu.be/InZrivHcHDc?t=10
         let profile: string = getStr(user["profile"]["image_48"])
         html = replace(html, re("img src=\"" & id), "img src=\"" & profile)
-        html = replace(html, re("@" & id), "@" & name)
+        html = replace(html, re("<@" & id & ">"), "<span class=\"user\">@" & name & "</span>")
         html = replace(html, re(id), name)
 
     return html

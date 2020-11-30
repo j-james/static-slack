@@ -7,7 +7,7 @@ import os, json, algorithm, sequtils, strutils, times, htmlgen, regex
 
 # There's some transformations that really should be done within the block itself
 func transform(text: string): string =
-    var text = text
+    var text: string = text
 
     # Newline characters are safe to regex replace with a self-closing <br />
     text = replace(text, re("\n"), "<br />")
@@ -36,7 +36,7 @@ proc gen*(dir: string): string =
         assert fileExists(file.path), "File " & file.path & " does not exist!"
         let json = parseJSON(readFile(file.path))
         assert json.kind == JArray, "JSON file is not an array!"
-        messages = messages & span(class="divider", splitFile(file.path).name)
+        messages = messages & `div`(class="divider", `div`(), span(splitFile(file.path).name), `div`())
         for node in json: # nim's for loops are Very Cool
             assert node.kind == JObject, "JSON node is not an object!"
             if getStr(node["type"]) == "message" and hasKey(node, "user"):
@@ -50,13 +50,13 @@ proc gen*(dir: string): string =
                         `div`(class="image",
                             img(src=user, class="profile", alt=user)
                         ), `div`(class="content",
-                            strong(class="user", user),
+                            span(class="user", user),
                             a(class="time", href="#" & timestamp, time),
                             p(class="text", text),
-                            span("reactions") # TODO: this needs actual functionality
+                            span(class="reactions") # TODO: this needs actual functionality
                         )
                     )
-                messages &= message # XXX: This is a likely source of message mixups
+                messages &= message
 
     let html: string = html(
         head(
@@ -64,24 +64,14 @@ proc gen*(dir: string): string =
             link(rel="icon", href="assets/img/favicon.png"),
             link(rel="stylesheet", href="assets/css/style.css")
         ),
-        body(
-            nav(
-                # Channel lists are inserted by far.nim
-                h1(id="title", extractFilename(dir)),
-                `div`(id="public-channels",  h3("Public Channels"),  ul()),
-                `div`(id="private-channels", h3("Private Channels"), ul()),
-                `div`(id="group-dms",        h3("Group Messages"),   ul()),
-                `div`(id="personal-dms",     h3("Direct Messages"),  ul())
-            ),
+        body( # Channel lists and descriptions are inserted by far.nim
+            nav(),
             main(
                 `div`(id="banner",
-                    # Channel descriptions are inserted by far.nim
                     `div`(id="channel",
                         h1(extractFilename(dir)),
-                        br(),
-                        p()
-                    ),
-                    `div`(id="search") # TODO: this needs actual functionality
+                        p(id="purpose")
+                    )
                 ), `div`(id="messages", messages)
             )
         )

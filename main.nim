@@ -31,7 +31,7 @@ for channel in walkDir(input):
     path = joinPath(output, tailDir(channel.path)) & ".html"
     if channel.kind == pcDir or channel.kind == pcLinkToDir: # ignore the three loose JSON files
         html = gen(channel.path)
-        html = far(html, input)
+        html = far(html, input, tailDir(channel.path))
         html = assets(html, output)
         # html = attachments(html, output)
         writeFile(path, html)

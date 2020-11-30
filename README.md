@@ -12,13 +12,12 @@ A (not-yet) full-fledged Slack export viewer.
 - [x] Replace user / channel IDs with names
 	- [x] far.nim
 - [ ] Make the generated HTML look like an actual Slack workspace
-	- [ ] Offer both Classic Slack and the redesign
 - [x] Host assets locally
 	- [x] assets.nim
-- [ ] Support attachments
+- [ ] Support for attachments
 	- [ ] attachments.nim?
-- [ ] Compile generator to C and as a binary for v1.0
-- [ ] Offer as a webapp? Nim supports JS as a target platform
+- [ ] Support for (custom) emojis
+- [ ] Offer as a webapp?
 
 ## Usage
 
