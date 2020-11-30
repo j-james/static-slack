@@ -43,10 +43,10 @@ proc far*(html, input: string): string =
     # User replacement
     assert fileExists(joinPath(input, "users.json"))
     let users = parseJSON(readFile(joinPath(input, "users.json")))
-    assert users.kind == JArray
+    assert users.kind == JArray, "users.json is not an array!"
     for user in users:
         let id: string = getStr(user["id"])
-        let name: string = getStr(user["profile"]["display_name"]) # youtu.be/InZrivHcHDc?t=10
+        let name: string = getStr(user["profile"]["real_name"]) # youtu.be/InZrivHcHDc?t=10
         let profile: string = getStr(user["profile"]["image_48"])
         html = replace(html, re("img src=\"" & id), "img src=\"" & profile)
         html = replace(html, re("@" & id), "@" & name)
