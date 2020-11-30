@@ -3,7 +3,7 @@
 # @return: Generated HTML file
 # Do note that replacing user / channel mentions is handled exclusively in far.nim
 
-import os, json, strutils, times, htmlgen, regex
+import os, json, algorithm, sequtils, strutils, times, htmlgen, regex
 
 # There's some transformations that really should be done within the block itself
 func transform(text: string): string =
@@ -32,10 +32,11 @@ func transform(text: string): string =
 proc gen*(dir: string): string =
     assert dirExists(dir), "Passed string doesn't point to a directory!"
     var messages: string
-    for file in walkDir(dir): # nim's for loops are cool
+    for file in sorted(toSeq(walkDir(dir))): # nim's for loops are cool
         assert fileExists(file.path), "File " & file.path & " does not exist!"
         let json = parseJSON(readFile(file.path))
         assert json.kind == JArray, "JSON file is not an array!"
+        messages = messages & span(class="divider", splitFile(file.path).name)
         for node in json: # nim's for loops are Very Cool
             assert node.kind == JObject, "JSON node is not an object!"
             if getStr(node["type"]) == "message" and hasKey(node, "user"):
@@ -56,7 +57,6 @@ proc gen*(dir: string): string =
                         )
                     )
                 messages &= message # XXX: This is a likely source of message mixups
-        messages = messages & span(class="divider", splitFile(file.path).name)
 
     let html: string = html(
         head(
