@@ -11,14 +11,14 @@ let input: string = paramStr(1)
 let output: string = paramStr(2)
 
 # param(1): Check input directory is a Slack export
-assert dirExists(input), "Input is not a directory! Zipped exports are not currently supported."    # TODO: support for zips
+assert dirExists(input), "Input is not a directory! Zipped exports are not currently supported." # TODO: support for zips
 assert fileExists(joinPath(input, "users.json")), "users.json does not exist! Are you sure this is a Slack export?"
 assert fileExists(joinPath(input, "channels.json")), "channels.json does not exist! Are you sure this is a Slack export?"
 
 # param(2): Check output folder is empty
 if fileExists(output):
     quit("Output path is a file!")
-elif dirExists(output):   # HACK: surprisingly the only real way to do this
+elif dirExists(output): # HACK: surprisingly the only real way to do this
     for file in walkDir(output):
         quit("Output folder exists and is non-empty!")
 else:
