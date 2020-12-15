@@ -47,7 +47,7 @@ nav a {
 }
 
 nav a:before {
-	content: "# "
+	content: "# ";
 }
 
 main {
@@ -55,8 +55,21 @@ main {
 	padding: 8px;
 }
 
+main a {
+	color: rgb(18, 100, 163);
+	text-decoration: none;
+}
+
+main a:hover {
+	text-decoration: underline;
+}
+
+main a:visited {
+	color: rgb(85, 26, 139);
+}
+
 main h1:before {
-	content: "# "
+	content: "# ";
 }
 
 #messages {
@@ -105,6 +118,15 @@ main h1:before {
 	font-weight: 900;
 }
 
+.channel {
+	font-weight: 900;
+	color: black;
+}
+
+.channel:visited {
+	color: black;
+}
+
 .time {
 	color: grey;
 	text-decoration: none;
@@ -114,6 +136,10 @@ main h1:before {
 
 .time:hover {
 	text-decoration: underline;
+}
+
+.time:visited {
+	color: grey;
 }
 
 .text {

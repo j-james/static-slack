@@ -5,7 +5,7 @@
 # @return: Parsed HTML file
 # This program is also responsible for filling up the descriptions.
 
-import os, re, json, algorithm
+import os, re, json, algorithm, strutils
 
 proc far*(html, input, title: string): string =
     var html: string = html
@@ -16,7 +16,7 @@ proc far*(html, input, title: string): string =
     assert channels.kind == JArray, "channels.json is not an array!"
     var list: seq[string]
     for channel in channels:
-        let name: string = getStr(channel["name"])
+        let name: string = replace(getStr(channel["name"]), '_', '-')
         if name == title:
             html = replace(html, re("id=\"purpose\">"), "id=\"purpose\">" & getStr(channel["purpose"]["value"]))
         list.add(name)

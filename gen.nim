@@ -1,9 +1,9 @@
 # gen.nim: Generate an HTML file from a particular directory of JSON files
 # @param: Path to JSON folder
 # @return: Generated HTML file
-# Do note that replacing user / channel mentions is handled exclusively in far.nim
 
-import os, json, algorithm, sequtils, strutils, times, htmlgen, regex
+import os, json, algorithm, sequtils, strutils, times, htmlgen, re
+from regex import nil
 
 # There's some transformations that really should be done within the block itself
 func transform(text: string): string =
@@ -12,19 +12,31 @@ func transform(text: string): string =
     # Newline characters are safe to regex replace with a self-closing <br />
     text = replace(text, re("\n"), "<br />")
 
-    # Slack exports enjoy starting links with <http rather than http, complicating parsing
-    text = replace(text, re("<http"), "http")
+    # Slack exports enjoy wrapping links with <>, complicating parsing
+    # ensure we're using the regex type from re here to not throw garbage strings
+    for url in re.findAll(text, re("<http\\S+>")):
+        var a: seq[string] = split(strip($url, chars = {'<', '>'}), '|')
+        a.add(a[0])
+        text = text.replace($url, "<a href=\"" & a[0] & "\">" & a[1] & "</a>")
+
+    # Additionally, clean up and link to mentioned channels
+    for channel in re.findAll(text, re("<#\\S+>")):
+        var a: seq[string] = split(strip($channel, chars = {'<', '#', '>'}), '|')
+        a.add(a[0])
+        a[1] = replace(a[1], '_', '-') # Underscores in channel names are not allowed to prevent messing up italics
+        text = replace(text, $channel, "<a class=\"channel\" href=\"" & a[1] & ".html\">" & "#" & a[1] & "</a>")
 
     # Replace Markdown indentifiers one at a time while ensuring a closing tag
+    # The regex package provides selective replacement, which is not in re
     while len(findAll(text, re("\\*"))) > 1:
-        text = replace(text, re("\\*"), "<strong>", 1)
-        text = replace(text, re("\\*"), "</strong>", 1)
+        text = regex.replace(text, regex.re("\\*"), "<strong>", 1)
+        text = regex.replace(text, regex.re("\\*"), "</strong>", 1)
     while len(findAll(text, re("_"))) > 1:
-        text = replace(text, re("_"), "<em>", 1)
-        text = replace(text, re("_"), "</em>", 1)
+        text = regex.replace(text, regex.re("_"), "<em>", 1)
+        text = regex.replace(text, regex.re("_"), "</em>", 1)
     while len(findAll(text, re("```"))) > 1:
-        text = replace(text, re("```"), "<code>", 1)
-        text = replace(text, re("```"), "</code>", 1)
+        text = regex.replace(text, regex.re("```"), "<code>", 1)
+        text = regex.replace(text, regex.re("```"), "</code>", 1)
 
     return text
 
@@ -69,7 +81,7 @@ proc gen*(dir: string): string =
             main(
                 `div`(id="banner",
                     `div`(id="channel",
-                        h1(extractFilename(dir)),
+                        h1(replace(extractFilename(dir), '_', '-')),
                         p(id="purpose")
                     )
                 ), `div`(id="messages", messages)

@@ -2,7 +2,7 @@
 # @param: Unzipped Slack export folder
 # @param: Empty or nonexistent output folder / name of output website
 
-import os
+import os, strutils
 import gen, far, assets
 
 # Make sure we're not missing parameters
@@ -25,13 +25,13 @@ else:
     createDir(output)
 
 # Create an HTML file for each channel JSON folder
-var html: string
-var path: string
+var html, filename, path: string
 for channel in walkDir(input):
-    path = joinPath(output, tailDir(channel.path)) & ".html"
+    filename = replace(tailDir(channel.path), '_', '-')
+    path = joinPath(output, filename) & ".html"
     if channel.kind == pcDir or channel.kind == pcLinkToDir: # ignore the three loose JSON files
         html = gen(channel.path)
-        html = far(html, input, tailDir(channel.path))
+        html = far(html, input, filename)
         html = assets(html, output)
         # html = attachments(html, output)
         writeFile(path, html)
